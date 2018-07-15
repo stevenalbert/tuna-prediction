@@ -12,6 +12,14 @@ requirePackage("shiny")
 requirePackage("leaflet")
 
 shinyUI(fluidPage(
-  leafletOutput("mymap"),
-  actionButton("recalc", "New points")
+  
+  sidebarLayout(
+    sidebarPanel(
+      dateInput("date", label = h3("Date input"), value = "2012-01-01", 
+                min = "2012-01-01", max = "2016-12-31")
+    ),
+    mainPanel(
+      leafletOutput("mymap")
+    )
+  )
 ))

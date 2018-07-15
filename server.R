@@ -12,16 +12,15 @@ requirePackage("shiny")
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
-  
-  points <- eventReactive(input$recalc, {
-    cbind(rnorm(40) * 2 + 13, rnorm(40) + 48)
-  }, ignoreNULL = FALSE)
-  
+
   output$mymap <- renderLeaflet({
-    leaflet() %>%
+    vessels <- read.csv(paste("fishing_effort/", input$date, ".csv", sep = ""))
+    leaflet(vessels) %>%
+      fitBounds(lng1 = 85, lng2 = 142, lat1 = -14, lat2 = 8) %>%
       addProviderTiles(providers$Stamen.TonerLite,
                        options = providerTileOptions(noWrap = TRUE)
       ) %>%
-      addMarkers(data = points())
+      addCircles(lng = ~lon_bin, lat = ~lat_bin, weight = 3, radius=100, 
+                 color="#ffa500", stroke = TRUE, fillOpacity = 0.8)
   })
 })
