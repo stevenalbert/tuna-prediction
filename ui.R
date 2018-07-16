@@ -19,7 +19,8 @@ shinyUI(fluidPage(
                 min = "2012-01-01", max = "2016-12-31")
     ),
     mainPanel(
-      leafletOutput("mymap")
+      leafletOutput("mymap"),
+      leafletOutput("map2")
     )
   )
 ))
