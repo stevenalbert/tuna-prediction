@@ -172,8 +172,71 @@ getTrainingDataCSV <- function() {
   write.csv(trainingData, "train_data.csv", row.names = FALSE)
 }
 
-scalingChlorophyllData <- function(filename) {
+scalingChlorophyllData <- function(dir, filename) {
+  chlorophyllData <- nc_open(filename = paste(dir, filename, sep = "/"))
+  longitude <- ncvar_get(chlorophyllData, "longitude")
+  latitude <- ncvar_get(chlorophyllData, "latitude")
+  time <- ncvar_get(chlorophyllData, "time")
+  dim.order = sapply(chlorophyllData$var$chla$dim, function(x) x$name)
+  count <- c(longitude = 20, latitude = 20, time = 1)
+  singleCount <- c(longitude = 1, latitude = 1, time = 1)
   
+  lonIteration <- (length(longitude) - 1) / 20 - 1
+  latIteration <- (length(latitude) - 1) / 20 - 1
+  
+  lonVals <- c()
+  latVals <- c()
+  timeVals <- time
+  
+  # Create scaled longitude
+  for(lon in 0:lonIteration) {
+    lonVals <- c(lonVals, longitude[lon * 20 + 1])
+  }
+  lonVals <- c(lonVals, longitude[length(longitude)])
+
+  # Create scaled latitude
+  for(lon in 0:latIteration) {
+    latVals <- c(latVals, latitude[lon * 20 + 1])
+  }
+  latVals <- c(latVals, latitude[length(latitude)])
+
+  # Create dimension
+  lonDim <- ncdim_def(name = "longitude", units = "degrees_east", vals = lonVals)
+  latDim <- ncdim_def(name = "latitude", units = "degrees_north", vals = latVals)
+  timeDim <- ncdim_def(name = "time", units = "seconds since 1970-01-01T00:00:00Z", unlim = TRUE, vals = timeVals)
+  # Create variables
+  ncVar <- ncvar_def(name = "chla", units = "Milligrams per cubic meter", 
+                     longname = "Chlorophyll-a Concentration", dim = list(lonDim, latDim, timeDim),
+                     prec = "float", missval = NA)
+  # Create netCDF file
+  ncData <- nc_create(filename = paste(dir, paste("scaled", filename, sep = "-"), sep = "/"), vars = list(ncVar))
+  
+  for(time in 1:length(time)) {
+    for(lon in 0:lonIteration) {
+      for(lat in 0:latIteration) {
+        chla <- ncvar_get(chlorophyllData, "chla",
+                          start = c(longitude = (lon * 20 + 1),
+                                    latitude = (lat * 20 + 1),
+                                    time = time)[dim.order],
+                          count = count[dim.order])
+        ncvar_put(nc = ncData, vals = mean(chla,na.rm = T), varid = "chla",
+                  start = c(longitude = (lon + 1), latitude = (lat + 1), time = time)[dim.order],
+                  count = singleCount[dim.order]
+                  )
+      }
+    }
+    # Add last single data
+    chla <- ncvar_get(chlorophyllData, "chla",
+                      start = c(longitude = length(longitude),
+                                latitude = length(latitude),
+                                time = time)[dim.order],
+                      count = singleCount[dim.order])
+    ncvar_put(nc = ncData, vals = mean(chla,na.rm = T), varid = "chla",
+              start = c(longitude = (lonIteration + 1), latitude = (latIteration + 1), time = time)[dim.order],
+              count = singleCount[dim.order]
+    )
+  }
+  nc_close(nc = ncData)
 }
 
 main <- function() {
@@ -183,4 +246,4 @@ main <- function() {
   getTrainingDataCSV()
 }
 
-main()
+#main()
