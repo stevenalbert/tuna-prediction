@@ -13,7 +13,7 @@ filterFishingData <- function() {
     
     # Process
     data <- subset(data, select = c(lat_bin, lon_bin, geartype, fishing_hours))
-    data <- data[!(data$fishing_hours==0),]
+    # data <- data[!(data$fishing_hours==0),]
     
     # Write
     write.csv(data, filename, row.names = FALSE)
@@ -22,7 +22,7 @@ filterFishingData <- function() {
   }
 }
 
-mapFishingDataWithSST <- function(filenames) {
+mapFishingDataWithSST <- function() {
   filenames <- list.files(fishingDataDirectory)
   for(filename in filenames) {
     date <- substr(filename, 1, 10)
@@ -79,11 +79,7 @@ getChlorophyll <- function(flat, flon, fdate, chlorophyllData){
       }
     }
   }
-  #start = c(longitude = (floor(flon - 84) * 20 + 1),
-  #latitude = (floor(flat + 14) * 20 + 1),
-  #time = (dateIndex))[dim.order]
-  #count = count[dim.order]
-  #print(start)
+
   if(flon == 142){
     flon = 141
     
@@ -102,8 +98,7 @@ getChlorophyll <- function(flat, flon, fdate, chlorophyllData){
   return(chlorophyll)
 }
 
-
-mapFishingDataWithChlorophyll <- function(filenames) {
+mapFishingDataWithChlorophyll <- function() {
   filenames <- list.files(fishingDataDirectory)
   for(filename in filenames) {
     # Read
@@ -113,7 +108,6 @@ mapFishingDataWithChlorophyll <- function(filenames) {
     data <- read.csv(filenamePath)
     chlorophyllData <- nc_open(paste(chlorophyllDataDirectory, paste(year, "nc", sep = "."), sep = "/"))
     
-    
     # Process
     data[nrow(data) + 1,] <- NA
     data$chlorophyll <- NA
@@ -121,15 +115,7 @@ mapFishingDataWithChlorophyll <- function(filenames) {
     if(nrow(data) > 0) {
       for(r in 1:nrow(data)) {
         rowData <- data[r,]
-         chlorophyll <- getChlorophyll(flon = rowData$lon_bin, flat = rowData$lat_bin , fdate = date, chlorophyllData = chlorophyllData)
-         #print(chlorophyll)
-         #chlorophyll <- ncvar_get(chlorophyllData, "chla",
-          #                start = c(lon = (floor(rowData$lon_bin - 84) * 20 + 1),
-          #                          lat = (floor(rowData$lat_bin + 14) * 20 + 1),
-          #                          time = (1 + as.integer(as.Date(date, format = "%Y-%m-%d") -
-          #                                                   as.Date(paste(year, "-01-01", sep = ""), format = "%Y-%m-%d")))
-          #                )[dim.order],
-          #                count = count[dim.order])
+        chlorophyll <- getChlorophyll(flon = rowData$lon_bin, flat = rowData$lat_bin , fdate = date, chlorophyllData = chlorophyllData)
         data[r,]$chlorophyll <- chlorophyll 
       }
       nc_close(chlorophyllData)
@@ -144,7 +130,7 @@ mapFishingDataWithChlorophyll <- function(filenames) {
 
 getTrainingDataCSV <- function() {
   filenames <- list.files(fishingDataDirectory)
-  tableColumns <- c("sst")
+  tableColumns <- c("sst", "chlorophyll", "fishing_hours")
   trainingData <- data.frame(matrix(ncol = length(tableColumns), nrow = 0))
   colnames(trainingData) <- tableColumns
   for(filename in filenames) {
@@ -163,58 +149,38 @@ getTrainingDataCSV <- function() {
 
   print(nrow(trainingData))
   if(nrow(trainingData) > 0) {
-    trainingData$tuna <- 1
     trainingData <- trainingData[!(is.na(trainingData$sst)),]
   }
   print(nrow(trainingData))
+
+  print(nrow(trainingData))
+  if(nrow(trainingData) > 0) {
+    trainingData$tuna <- NA
+    trainingData <- trainingData[!(is.na(trainingData$chlorophyll)),]
+  }
+  print(nrow(trainingData))
+
+  if(nrow(trainingData[(trainingData$fishing_hours == 0),]) > 0) {
+    trainingData[(trainingData$fishing_hours == 0),]$tuna <- 0
+  }
+  
+  if(nrow(trainingData[(trainingData$fishing_hours > 0),]) > 0) {
+    trainingData[(trainingData$fishing_hours > 0),]$tuna <- 1
+  }
   
   # Write
   write.csv(trainingData, "train_data.csv", row.names = FALSE)
 }
 
+scalingChlorophyllData <- function(filename) {
+  
+}
+
 main <- function() {
-  #filterFishingData()
-  #mapFishingDataWithSST()
+  filterFishingData()
+  mapFishingDataWithSST()
   mapFishingDataWithChlorophyll()
-  #getTrainingDataCSV()
+  getTrainingDataCSV()
 }
 
 main()
-
-
-tes <- function(){
-  library(anytime)
-  rpath = "chlorophyll/2012.nc"
-  #chlorophyll -> 
-  
-  #nc <- nc_open(rpath)
-  # data <- nc$var[[1]]
-  start <- c(latitude = 1, longitude = 1, time = 1)
-  count <- c(latitude = 20, longitude = 20, time = 1)
-  dim.order <- sapply(nc$var$chla$dim, function(x) x$name)
-  
-  chla <- ncvar_get(nc , "chla", start = start[dim.order], count = count[dim.order])
-  
-  #print(mean(chla,na.rm = T))
-  time <- ncvar_get(nc , "time")
-  #lat <- ncvar_get(nc , "latitude", start = start[1], count = count[1])
-  #long <- ncvar_get(nc , "longitude", start = start[2], count = count[2])
-  print(length(time))
-  
-  for(i in 1:length(time)){
-    string = as.POSIXct(time[i], origin = "1970-01-01", tz = "GMT")
-    num = as.numeric(as.POSIXct(string, tz="GMT"))
-    #print(string)
-    #print(num)
-  }
-  for(i in 2:length(time)){
-    #print(time[i]-time[i-1])
-  }
-  print(time)
-  #num2 = time[1]
-  #print(as.POSIXct(time[1], origin = "1970-01-01", tz = "GMT"))
-  #num = as.numeric(as.POSIXct("2012-01-01", tz="GMT"))
-  #print(num == num2)
-}
-#mapFishingDataWithChlorophyll()
-#tes()
