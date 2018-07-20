@@ -1,2 +1,2 @@
-"lat_bin","lon_bin","geartype","fishing_hours"
--4.66,106.67,"drifting_longlines",5.30680555555556
+"lat_bin","lon_bin","geartype","fishing_hours","sst","chlorophyll"
+-4.66,106.67,"drifting_longlines",5.30680555555556,28.519998550415,0.735829929341228

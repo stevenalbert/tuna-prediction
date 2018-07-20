@@ -1,5 +1,5 @@
-"lat_bin","lon_bin","geartype","fishing_hours"
--5.36,106.34,"drifting_longlines",5.21666666666667
--5.34,106.34,"drifting_longlines",0.85875
--5.28,106.36,"drifting_longlines",0.315138888888889
--5.26,106.38,"drifting_longlines",0.958194444444444
+"lat_bin","lon_bin","geartype","fishing_hours","sst","chlorophyll"
+-5.36,106.34,"drifting_longlines",5.21666666666667,29.2899990081787,0.604996999396997
+-5.34,106.34,"drifting_longlines",0.85875,29.2899990081787,0.604996999396997
+-5.28,106.36,"drifting_longlines",0.315138888888889,29.2899990081787,0.604996999396997
+-5.26,106.38,"drifting_longlines",0.958194444444444,29.2899990081787,0.604996999396997

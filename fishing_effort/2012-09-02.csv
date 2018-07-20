@@ -1,2 +1,2 @@
-"lat_bin","lon_bin","geartype","fishing_hours"
--8.51,116.79,"trawlers",0.806805555555556
+"lat_bin","lon_bin","geartype","fishing_hours","sst","chlorophyll"
+-8.51,116.79,"trawlers",0.806805555555556,NA,0.193564956206264
