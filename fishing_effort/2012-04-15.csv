@@ -1,8 +1,8 @@
-"","lat_bin","lon_bin","geartype","fishing_hours"
-"8",-5.36,106.34,"drifting_longlines",1.14
-"9",-5.19,106.41,"drifting_longlines",1.72930555555556
-"28",0,89.54,"purse_seines",2.01097222222222
-"29",0.01,89.54,"purse_seines",0.924861111111111
-"30",0.03,89.56,"purse_seines",0.841388888888889
-"31",0.03,89.54,"purse_seines",0.895138888888889
-"41",-0.05,89.49,"purse_seines",5.51555555555556
+"lat_bin","lon_bin","geartype","fishing_hours"
+-5.36,106.34,"drifting_longlines",1.14
+-5.19,106.41,"drifting_longlines",1.72930555555556
+0,89.54,"purse_seines",2.01097222222222
+0.01,89.54,"purse_seines",0.924861111111111
+0.03,89.56,"purse_seines",0.841388888888889
+0.03,89.54,"purse_seines",0.895138888888889
+-0.05,89.49,"purse_seines",5.51555555555556

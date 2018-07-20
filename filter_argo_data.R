@@ -1,7 +1,8 @@
+source("function.R")
 
-library("ncdf4")
-library("oce")
-library("lubridate")
+requirePackage("ncdf4")
+requirePackage("oce")
+requirePackage("lubridate")
 
 
 filter <- function(){

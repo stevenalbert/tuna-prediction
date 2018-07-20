@@ -1,6 +1,6 @@
-"","lat_bin","lon_bin","geartype","fishing_hours"
-"4",-11.19,106.79,"drifting_longlines",2.45972222222222
-"5",-11.13,106.86,"drifting_longlines",5.81916666666667
-"6",-10.93,106.72,"drifting_longlines",6.75402777777778
-"7",-10.93,106.81,"drifting_longlines",5.82902777777778
-"24",-8.49,116.67,"trawlers",3.42416666666667
+"lat_bin","lon_bin","geartype","fishing_hours"
+-11.19,106.79,"drifting_longlines",2.45972222222222
+-11.13,106.86,"drifting_longlines",5.81916666666667
+-10.93,106.72,"drifting_longlines",6.75402777777778
+-10.93,106.81,"drifting_longlines",5.82902777777778
+-8.49,116.67,"trawlers",3.42416666666667

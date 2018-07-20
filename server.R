@@ -7,8 +7,9 @@
 #    http://shiny.rstudio.com/
 #
 source("function.R")
+source("plotingargo.R")
+
 requirePackage("shiny")
-requirePackage("pracma")
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
@@ -19,7 +20,7 @@ shinyServer(function(input, output, session) {
     #print(argos[[1]][["time"]])
     leaflet(vessels) %>%
       fitBounds(lng1 = 85, lng2 = 142, lat1 = -14, lat2 = 8) %>%
-      addProviderTiles(providers$Stamen.TonerLite,
+      addProviderTiles(,+providers$Stamen.TonerLite,
                        options = providerTileOptions(noWrap = TRUE)
       ) %>%
       addCircles(lng = ~lon_bin, lat = ~lat_bin, weight = 3, radius=100, 

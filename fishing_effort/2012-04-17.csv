@@ -1,5 +1,5 @@
-"","lat_bin","lon_bin","geartype","fishing_hours"
-"2",-5.49,106.39,"drifting_longlines",2.26777777777778
-"39",-2.34,85.83,"purse_seines",6.20666666666667
-"40",-2.3,85.79,"purse_seines",2.43208333333333
-"41",-2.01,86.25,"purse_seines",4.70166666666667
+"lat_bin","lon_bin","geartype","fishing_hours"
+-5.49,106.39,"drifting_longlines",2.26777777777778
+-2.34,85.83,"purse_seines",6.20666666666667
+-2.3,85.79,"purse_seines",2.43208333333333
+-2.01,86.25,"purse_seines",4.70166666666667
