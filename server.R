@@ -7,131 +7,94 @@
 #    http://shiny.rstudio.com/
 #
 source("function.R")
-source("plotingargo.R")
-
+source("prediction.R")
+requirePackage("leaflet.extras")
 requirePackage("shiny")
+requirePackage("ggmap")
+requirePackage("ggplot2")
+library("sp")
+library("rgdal")
+library("KernSmooth")
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
-
-  output$mymap <- renderLeaflet({
-    vessels <- read.csv(paste("fishing_effort/", input$date, ".csv", sep = ""))
-    argos <- getArgosProfiles()
-    #print(argos[[1]][["time"]])
-    leaflet(vessels) %>%
-      fitBounds(lng1 = 85, lng2 = 142, lat1 = -14, lat2 = 8) %>%
-      addProviderTiles(,+providers$Stamen.TonerLite,
-                       options = providerTileOptions(noWrap = TRUE)
-      ) %>%
-      addCircles(lng = ~lon_bin, lat = ~lat_bin, weight = 3, radius=100, 
-                 color="#ffa500", stroke = TRUE, fillOpacity = 0.8)
+  map <- get_map(location = "indonesia" , zoom = 4, maptype = "hybrid", source = "google", color = "color", api_key = "AIzaSyDpk82Y4zWYHeoP4WPyy327flFyMs4xu6k")
+  
+  filtered <- reactive({
+    predictionData <- read.csv(paste("prediction_data/", input$date, ".csv", sep = ""))
+    p <- bayesPrediction(predictionData)
+    prediction <- cbind(p, predictionData)
+    row_sub = apply(prediction, 1, function(row) all(row !=0 ))
+    prediction <- prediction[row_sub,c("lat","lon")]
+    return(prediction)
   })
   
-  output$map2 <- renderLeaflet({
-    #vessels <- read.csv(paste("fishing_effort/", input$date, ".csv", sep = ""))
-    argos <- getArgosProfiles()
+  output$mymap <- renderLeaflet({
     
-    lat <- c()
-    lon <- c()
-    
-    for(i in 1:length(argos)){
-      for(j in 1:length(argos[[i]][["time"]])){
-        time <- argos[[i]][["time"]][j]
-        time <- strtrim(time, 7)
-        stime <-strtrim(input$date, 7)
-        str
-        #print(time)
-        #print(stime)
-        #print(time == stime)
-        
-        if(time == stime){
-          lat <- c(lat,argos[[i]][["latitude"]])
-          lon <- c(lon,argos[[i]][["longitude"]])
-        }
-      }
-      
-    }
-    
-    #print(lat)
+    #print(head(prediction[row_sub, c("lat","lon")]))
+    #print(predictionData)
+    #leaflet(prediction[row_sub,]) %>% addTiles() %>% addMarkers(
+    #  clusterOptions = markerClusterOptions()
+    #) %>% addCircles(lng = ~lon, lat = ~lat, weight = 3, radius=100, 
+    #                col = "red", stroke = TRUE, fillOpacity = 0.8)
     
     
-    #print(lon)
-    leaflet() %>%
-      fitBounds(lng1 = 85, lng2 = 142, lat1 = -14, lat2 = 8) %>%
-      addProviderTiles(providers$Stamen.TonerLite,
-                       options = providerTileOptions(noWrap = TRUE)
-      ) %>%
-      addCircles(lng = lon, lat = lat, weight = 3, radius=100, 
-                 color="#0000ff", stroke = TRUE, fillOpacity = 0.8)
+    #print(head(prediction[row_sub,c("lat","lon")]))
+    leaflet(filtered()) %>%
+      addTiles(group="OSM") %>%addMarkers(
+          clusterOptions = markerClusterOptions()
+        )
+    
+  })
+  
+  observe(leafletProxy("mymap", data=filtered()) %>%
+            clearMarkers() %>%
+            addMarkers(
+              clusterOptions = markerClusterOptions()
+            )
+  )
+  
+  output$heatMap <- renderPlot({
+    predictionData <- read.csv(paste("prediction_data/", input$date, ".csv", sep = ""))
+    #predict <- bayesPredictionProb(predictionData)
+    predict <- bayesPrediction(predictionData)
+    prediction <- cbind(predict, predictionData)
+    #print(head(prediction))
+    #bindPrediction <- cbind(prediction, predictionData)
+    #colnames(prediction) <- gsub("1", "probability", colnames(prediction))
+    #colnames(prediction) <- gsub("0", "false", colnames(prediction))
+    row_sub = apply(prediction, 1, function(row) all(row !=0 ))
+    #print(head(prediction[row_sub,]))
+    
+    ggmap(map) + geom_density2d(data = prediction[row_sub,], 
+      aes(x = lon, y = lat), size = 0.3) + stat_density2d(data = prediction[row_sub,], 
+      aes(x = lon, y = lat, fill = ..level.., alpha = ..level..), size = 0.01, 
+      bins = 16, geom = "polygon") + scale_fill_gradient(low = "green", high = "red") + 
+      scale_alpha(range = c(0, 0.3), guide = FALSE)
+    
+    #ggmap(map) +
+      #geom_point(data = prediction, aes(x =lon, y= lat, size = probability, colour = probability, show_guide = T), alpha=0.3, na.rm = T)+
+    #  stat_density2d(data=prediction, aes(x=lon, y=lat, alpha= ..level.., fill= ..level..), colour=FALSE,
+    #                 geom="polygon", bins=4, na.rm = T)+
+    #  scale_fill_gradient(low = "green", high = "red")
+    
+  })
+  
+  output$bayesGraph1 <- renderPlot({
+    predictionData <- read.csv(paste("prediction_data/", input$date, ".csv", sep = ""))
+    #predict <- bayesPredictionProb(predictionData)
+    model <- getBayesModel()
+    predict <- bayesPrediction(predictionData)
+    prediction <- cbind(predict, predictionData)
+    plot(model, which = 1)
+  })
+  
+  output$bayesGraph2 <- renderPlot({
+    predictionData <- read.csv(paste("prediction_data/", input$date, ".csv", sep = ""))
+    #predict <- bayesPredictionProb(predictionData)
+    model <- getBayesModel()
+    predict <- bayesPrediction(predictionData)
+    prediction <- cbind(predict, predictionData)
+    plot(model, which = 2)
   })
 })
-
-getArgosProfiles <- function(){
-  url <- "http://www.usgodae.org/ftp/outgoing/argo"
-  path <- "filtered_floats.txt"
-  conn <- file(path,open="r")
-  lines <- readLines(conn)
-  argos <- c()
-  lat <- c()
-  lon <- c()
-  for (i in 1:length(lines)){
-    line <- strsplit(lines[[i]], ",")
-    dac <- strsplit(line[[1]][1], "/")[[1]][1]
-    id <- strsplit(line[[1]][1] , "/")[[1]][2]
-    
-    profile <- paste(id, "_prof.nc", sep="")
-    #print(profile)
-    float <- paste(url, "dac", dac, id, profile, sep="/")
-    
-    local <- paste(getwd(),"/float_profiles/", profile,sep = "")
-    
-    #print(file.exists(local))
-    if(!file.exists(local)){
-      res <- tryCatch(download.file(float, profile, mode = "wb"),
-                      error = function(err){
-                        paste("url not found", sep='')}
-      )
-      
-    }
-    
-    local <- strsplit(local, "/")
-    local <- paste(local[[1]], sep = "")
-    local <- paste(local, collapse = "\\")
-    #print(local)
-    dir <- local
-    #print(dir)
-    #argo <- read.argo(dir)
-    #print(argo)
-    res <- tryCatch(argo <- read.argo(dir),
-                    error = function(err){
-                      paste("url not found", sep='')}
-    )
-    #print(res)
-    #print(argo[["time"]])
-    argos <- c(argos,argo)
-    for(i in 1:length(argo[["latitude"]])){
-      lat <- c(lat, as.double(argo[["latitude"]][i]))
-    }
-    for(i in 1:length(argo[["longitude"]])){
-      lon <- c(lon, as.double(argo[["longitude"]][i]))
-    }
-    
-    
-  }
-  #print(argos[[1]][["latitude"]])
-  #print(argos[[1]][["longitude"]])
-  #plot()
-  #print(mean(argos[[1]][["temperature"]]))
-  #print(subset(argos[[1]], "adjusted")[["temperature"]][[1]])
-  #print(~argo)
-  return(argos)
-}
-
-
-getLatitude<- function(argos , date){
-  
-}
-
-getLatitude<- function(argos, date){
-  
-}
