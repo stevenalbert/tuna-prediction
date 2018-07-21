@@ -127,7 +127,6 @@ getArgosProfiles <- function(){
   return(argos)
 }
 
-#getArgosProfiles()
 
 getLatitude<- function(argos , date){
   
