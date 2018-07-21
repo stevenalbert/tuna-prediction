@@ -6,21 +6,24 @@
 # 
 #    http://shiny.rstudio.com/
 #
-source("function.R")
 source("prediction.R")
-requirePackage("leaflet.extras")
-requirePackage("shiny")
-requirePackage("ggmap")
-requirePackage("ggplot2")
+
+library("leaflet.extras")
+library("shiny")
+library("ggmap")
+library("ggplot2")
 library("sp")
 library("rgdal")
 library("KernSmooth")
+library("RgoogleMaps")
+
+# map <- get_map(location = "indonesia" , zoom = 4, maptype = "hybrid", source = "google", color = "color", api_key = "AIzaSyDpk82Y4zWYHeoP4WPyy327flFyMs4xu6k")
+map <- get_map(location = "indonesia" , zoom = 4, maptype = "hybrid", source = "google", color = "color")
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
-  map <- get_map(location = "indonesia" , zoom = 4, maptype = "hybrid", source = "google", color = "color", api_key = "AIzaSyDpk82Y4zWYHeoP4WPyy327flFyMs4xu6k")
-  
-  filtered <- reactive({
+
+    filtered <- reactive({
     predictionData <- read.csv(paste("prediction_data/", input$date, ".csv", sep = ""))
     p <- bayesPrediction(predictionData)
     prediction <- cbind(p, predictionData)
@@ -40,16 +43,15 @@ shinyServer(function(input, output, session) {
     
     
     #print(head(prediction[row_sub,c("lat","lon")]))
-    leaflet(filtered()) %>%
-      addTiles(group="OSM") %>%addMarkers(
-          clusterOptions = markerClusterOptions()
-        )
-    
+    leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+      fitBounds(lng1 = 80, lng2 = 145, lat1 = -18, lat2 = 10) %>%
+      addTiles(group="OSM")
   })
   
   observe(leafletProxy("mymap", data=filtered()) %>%
             clearMarkers() %>%
-            addMarkers(
+            clearMarkerClusters() %>%
+            addCircleMarkers(
               clusterOptions = markerClusterOptions()
             )
   )
@@ -76,10 +78,15 @@ shinyServer(function(input, output, session) {
     row_sub = apply(prediction, 1, function(row) all(row !=0 ))
     #print(head(prediction[row_sub,]))
     
-    ggmap(map) + geom_density2d(data = prediction[row_sub,], 
-      aes(x = lon, y = lat), size = 0.3) + stat_density2d(data = prediction[row_sub,], 
-      aes(x = lon, y = lat, fill = ..level.., alpha = ..level..), size = 0.01, 
-      bins = 16, geom = "polygon") + scale_fill_gradient(low = "green", high = "red") + 
+    ggmap(map) + 
+      geom_density2d(data = prediction[row_sub,], aes(x = lon, y = lat), size = 0.3) + 
+      stat_density2d(data = prediction[row_sub,],
+                     aes(x = lon, y = lat, 
+                         fill = ..level.., alpha = ..level..
+                         ), 
+                     size = 0.1,
+      bins = 16, geom = "polygon") +
+      scale_fill_gradient(low = "yellow", high = "red") +
       scale_alpha(range = c(0, 0.3), guide = FALSE)
     
     #ggmap(map) +
