@@ -3,6 +3,7 @@ library("ncdf4")
 fishingDataDirectory <- "fishing_effort"
 sstDataDirectory <- "sea_temperature"
 chlorophyllDataDirectory <- "chlorophyll"
+predictionDataDirectory <- "prediction_data"
 
 filterFishingData <- function() {
   filenames <- list.files(fishingDataDirectory)
@@ -192,13 +193,11 @@ scalingChlorophyllData <- function(dir, filename) {
   for(lon in 0:lonIteration) {
     lonVals <- c(lonVals, longitude[lon * 20 + 1])
   }
-  lonVals <- c(lonVals, longitude[length(longitude)])
 
   # Create scaled latitude
   for(lon in 0:latIteration) {
     latVals <- c(latVals, latitude[lon * 20 + 1])
   }
-  latVals <- c(latVals, latitude[length(latitude)])
 
   # Create dimension
   lonDim <- ncdim_def(name = "longitude", units = "degrees_east", vals = lonVals)
@@ -209,7 +208,7 @@ scalingChlorophyllData <- function(dir, filename) {
                      longname = "Chlorophyll-a Concentration", dim = list(lonDim, latDim, timeDim),
                      prec = "float", missval = NA)
   # Create netCDF file
-  ncData <- nc_create(filename = paste(dir, paste("scaled", filename, sep = "-"), sep = "/"), vars = list(ncVar))
+  ncData <- nc_create(filename = paste(dir, paste("scaled", filename, sep = "."), sep = "/"), vars = list(ncVar))
   
   for(time in 1:length(time)) {
     for(lon in 0:lonIteration) {
@@ -219,24 +218,88 @@ scalingChlorophyllData <- function(dir, filename) {
                                     latitude = (lat * 20 + 1),
                                     time = time)[dim.order],
                           count = count[dim.order])
-        ncvar_put(nc = ncData, vals = mean(chla,na.rm = T), varid = "chla",
+        chla <- mean(chla, na.rm = TRUE)
+        ncvar_put(nc = ncData, vals = mean(chla, na.rm = TRUE), varid = "chla",
                   start = c(longitude = (lon + 1), latitude = (lat + 1), time = time)[dim.order],
                   count = singleCount[dim.order]
                   )
       }
     }
-    # Add last single data
-    chla <- ncvar_get(chlorophyllData, "chla",
-                      start = c(longitude = length(longitude),
-                                latitude = length(latitude),
-                                time = time)[dim.order],
-                      count = singleCount[dim.order])
-    ncvar_put(nc = ncData, vals = mean(chla,na.rm = T), varid = "chla",
-              start = c(longitude = (lonIteration + 1), latitude = (latIteration + 1), time = time)[dim.order],
-              count = singleCount[dim.order]
-    )
   }
   nc_close(nc = ncData)
+  nc_close(chlorophyllData)
+}
+
+combineSSTWithChlorophyll <- function(date) {
+  date <- as.Date(date, format = "%Y-%m-%d")
+  year <- format(date, "%Y")
+  # Get SST
+  sstFilePath <- paste(sstDataDirectory, paste("sst.day.mean", year, "nc", sep = "."), sep = "/")
+  sstNc <- nc_open(filename = sstFilePath)
+  sstDim <- sapply(sstNc$var$sst$dim, function(x) x$name)
+  sstCount <- c(lat = 1, lon = 1, time = 1)
+  sstTimeIndex = 1 + as.integer(as.Date(date, format = "%Y-%m-%d") - 
+                                  as.Date(paste(year, "-01-01", sep = ""), format = "%Y-%m-%d"))
+  
+  # Get Chlorophyll
+  chloroFilePath <- paste(chlorophyllDataDirectory, paste("scaled", "weekly", year, "nc", sep = "."), sep = "/")
+  chloroNc <- nc_open(filename = chloroFilePath)
+  chloroDim <- sapply(chloroNc$var$chla$dim, function(x) x$name)
+  chloroCount <- c(latitude = 1, longitude = 1, time = 1)
+  chloroTime <- ncvar_get(chloroNc, "time")
+  chloroLon <- ncvar_get(chloroNc, "longitude")
+  chloroLat <- ncvar_get(chloroNc, "latitude")
+  timeInUnix <- as.numeric(as.POSIXct(date, tz = "GMT"))
+  chloroTimeIndex = 1
+  while(chloroTimeIndex <= length(chloroTime) && timeInUnix >= chloroTime[chloroTimeIndex]) {
+    chloroTimeIndex = chloroTimeIndex + 1
+  }
+  chloroTimeIndex = chloroTimeIndex - 1
+  
+  # Create empty table
+  tableColumns <- c("lat", "lon", "sst", "chlorophyll")
+  data <- data.frame(matrix(ncol = length(tableColumns), nrow = 0))
+  colnames(data) <- tableColumns
+  
+  # Fill table
+  minLon <- 84
+  maxLon <- 142
+  minLat <- -14
+  maxLat <- 8
+  for(lon in minLon:maxLon) {
+    for(lat in minLat:maxLat) {
+      sst <- ncvar_get(sstNc, "sst",
+                       start = c(lon = (floor(lon / 0.25) + 1),
+                                 lat = (floor(lat + 90) / 0.25 + 1),
+                                 time = sstTimeIndex
+                       )[sstDim],
+                       count = sstCount[sstDim])
+      chloro <- ncvar_get(chloroNc, "chla",
+                          start = c(longitude = (lon - chloroLon[1] + 1),
+                                    latitude = (lat - chloroLat[1] + 1),
+                                    time = chloroTimeIndex)[chloroDim],
+                          count = chloroCount[chloroDim])
+      if(!is.na(sst) && !is.na(chloro)) {
+        data[(nrow(data) + 1),] <- c(lat = lat, lon = lon, sst = sst, chlorophyll = chloro)
+      }
+    }
+  }
+
+  nc_close(sstNc)
+  nc_close(chloroNc)
+  
+  # Write csv
+  write.csv(data, paste(predictionDataDirectory, paste(date, "csv", sep = "."), sep = "/"), 
+            row.names = FALSE)
+}
+
+getPredictionDataFrom <- function(start, end) {
+  # Start: "2012-01-01", End: "2018-03-31"
+  dates <- seq(as.Date(start, format = "%Y-%m-%d"), as.Date(end, format = "%Y-%m-%d"), by = 'days')
+  for(i in 1:length(dates)) {
+    print(paste("Get predict data:", dates[i]))
+    combineSSTWithChlorophyll(dates[i])
+  }
 }
 
 main <- function() {
