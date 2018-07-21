@@ -13,6 +13,7 @@ requirePackage("leaflet")
 
 shinyUI(fluidPage(
   titlePanel("Predicting Tuna Location") ,
+  titlePanel("Prediction by density"),
   sidebarLayout(
     sidebarPanel(
       dateInput("date", label = h3("Date input"), value = "2012-01-01", 
@@ -20,15 +21,16 @@ shinyUI(fluidPage(
       
     ),
     mainPanel(
-      titlePanel("Prediction by intensity"),
-      leafletOutput("mymap"),
-      plotOutput("heatMap"),
+      leafletOutput("mymap")
       
-      
-      titlePanel("Naive Bayes Model Graph"),
-      plotOutput("bayesGraph1"),
-      plotOutput("bayesGraph2")
     )
     
-  )
+  ),
+  plotOutput("heatMap"),
+  titlePanel("Prediction Graphs"),
+  plotOutput("predictionGraph"),
+  titlePanel("Naive Bayes Model Graph"),
+  plotOutput("bayesGraph1"),
+  plotOutput("bayesGraph2")
+  
 ))

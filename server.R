@@ -54,6 +54,16 @@ shinyServer(function(input, output, session) {
             )
   )
   
+  output$predictionGraph <- renderPlot({
+    
+    predictionData <- read.csv(paste("prediction_data/", input$date, ".csv", sep = ""))
+    
+    predict <- bayesPrediction(predictionData)
+    prediction <- cbind(predict, predictionData)
+    
+    plot(predict)
+  })
+  
   output$heatMap <- renderPlot({
     predictionData <- read.csv(paste("prediction_data/", input$date, ".csv", sep = ""))
     #predict <- bayesPredictionProb(predictionData)
@@ -81,20 +91,12 @@ shinyServer(function(input, output, session) {
   })
   
   output$bayesGraph1 <- renderPlot({
-    predictionData <- read.csv(paste("prediction_data/", input$date, ".csv", sep = ""))
-    #predict <- bayesPredictionProb(predictionData)
     model <- getBayesModel()
-    predict <- bayesPrediction(predictionData)
-    prediction <- cbind(predict, predictionData)
     plot(model, which = 1)
   })
   
   output$bayesGraph2 <- renderPlot({
-    predictionData <- read.csv(paste("prediction_data/", input$date, ".csv", sep = ""))
-    #predict <- bayesPredictionProb(predictionData)
     model <- getBayesModel()
-    predict <- bayesPrediction(predictionData)
-    prediction <- cbind(predict, predictionData)
     plot(model, which = 2)
   })
 })
