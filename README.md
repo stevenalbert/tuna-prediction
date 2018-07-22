@@ -34,7 +34,7 @@ To install packages, you can use the code:
 
 Usage
 ======
-#### Filtering and Data Mapping
+## Filtering and Data Mapping
 Using Global Fishing Watch, we can extract the data of all the ships fishing. While there is a lot of data in this project, the data we currently needed are the ships fishing around Indonesia waters. To get the exact location, we filtered the ship needed in the following coordinates:
 * Latitude of -14° ↔ 8°  
 * Longitude of 85° ↔ 142°
@@ -49,21 +49,28 @@ The ships, SST, and chlorophyll data all has different range value for latitude 
 
 To classify the data, we assume if ships that has fishing hours value above zero indicates that they are fishing tuna. So the value of tuna in each coordinates will be either 0 or 1.
 
-#### Prediction with Naive Bayes    
+## Prediction with Naive Bayes    
 
 After getting the exact data we need, we will predict the locations with Naive Bayes classifier.
 
-#### Bayes Theorem
-![bayes formula](https://wikimedia.org/api/rest_v1/media/math/render/svg/52bd0ca5938da89d7f9bf388dc7edcbd546c118e)
-#### Our bayes formula
-![tuna bayes formula](http://latex2png.com/output//latex_95e70936077b65da05a67657c7274c95.png)
+### Bayes Theorem
+
+<p align="center"><img src="http://latex.codecogs.com/svg.latex?p(C_k|x)=\frac{p(C_k)\;p(x|C_k)}{p(x)}"></p>
+
+### Our bayes formula
+
+<p align="center"><img src="http://latex.codecogs.com/svg.latex?P(tuna\:|\:SST,Chlorophyll_a)\;=\;\frac{P(SST,Chlorophyll_a\:|\:tuna)\;P(tuna)}{P(SST,Chlorophyll_a)}"></p>
 
 The probability density function for the normal distribution is defined by two parameters (mean and standard deviation).
- ![bayes normal distribution formula](http://chem-eng.utoronto.ca/~datamining/dmc/images/Bayes_NormDist.png)
 
+<p align="center"><img src="http://latex.codecogs.com/svg.latex?\mu\;=\;\frac{1}{n}\:\sum_{i=1}^{n}x_i"></p>
 
+<p align="center"><img src="http://latex.codecogs.com/svg.latex?\sigma\;=\;\left[\frac{1}{n-1}\;\sum_{i=1}^{n}\:(x_i-\mu)^2\right]"></p>
+
+<p align="center"><img src="http://latex.codecogs.com/svg.latex?f(x)\;=\;\frac{1}{\sqrt{2\pi}\;\sigma}\;e^{-\frac{(x-\mu)^2}{2\sigma^2}}"></p>
 
 ### Naive Bayes Model from Training Data
+
 #### Sea Surface Temperature
 
 |SST|0 (No Tuna)|1 (Tuna)|
@@ -72,31 +79,36 @@ The probability density function for the normal distribution is defined by two p
 | SD|1.188109  |1.102100|
 
 #### Chlorophyll
+
 |Chlorophyll| 0 (No Tuna)|1 (Tuna)|
 |---|:---:|:---:|
 |Mean |0.7860678 |0.3662977|
 |SD  |1.1794882 |0.8036224|
 
 #### Confusion Matrix
+
 | |Actual: NO | Actual: YES|
 |---|---:|---:|
-|Predicted: NO|194743|70047|
-|Predicted: YES|119649|194014|
+|<b>Predicted: NO</b>|194743|70047|
+|<b>Predicted: YES</b>|119649|194014|
 
 From confusion matrix, we can get the accuracy of bayes model which is sum of the true prediction. 
-![true prediction](http://latex.codecogs.com/svg.latex?Accuracy%20=%20\frac{(194743+194014)}{(194743+70047+119649+194014)}%20=%200.672)
+
+<p align="center"><img src="http://latex.codecogs.com/svg.latex?Accuracy\;=\;\frac{(194743\:+\:194014)}{(194743\:+\:70047\:+\:119649\:+\:194014)}\;=\;0.672"></p>
 
 
-##### To calculate tuna probability we use the Normal Distribution formula
-![tuna probability formula](http://latex2png.com/output//latex_6c2dafbb05fd4c2808bf1bf1ca2e8089.png)
+### To calculate tuna probability we use the Normal Distribution formula
 
-![SST tuna probability](http://latex2png.com/output//latex_2e54eb4f9c5d9c74718e70ca8a3a8c43.png)
+<p align="center"><img src="http://latex.codecogs.com/svg.latex?P(SST,Chlorophyll_a\:|\:tuna)\;=\;P(SST\:|\:tuna)\;P(Chlorophyll_a\:|\:tuna)"></p>
 
-![Chlorophyll tuna probability](http://latex2png.com/output//latex_f3f5d384b4fc07fcfc110dd95d9019ff.png)
+<p align="center"><img src="http://latex.codecogs.com/svg.latex?P(SST\:|\:tuna)=\frac{1}{1.1021\sqrt{2\pi}}\;e^{-\frac{(SST-28.240935)^2}{2\times1.1021^2}}"></p>
+
+<p align="center"><img src="http://latex.codecogs.com/svg.latex?P(Chlorophyll_a\:|\:tuna)=\frac{1}{0.8036224\sqrt{2\pi}}\;e^{-\frac{(Chlorophyll_a-0.3662977)^2}{2\times0.8036244^2}}"></p>
 
 
 
-#### Data Modeling
+## Data Modeling
+
 To visualize the data, we use `shiny` to show the location of the ships and result of the tuna prediction.  
 
 In this application, user can use the slidebar to change designated date in which the information shown will change according to the date set.
