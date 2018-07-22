@@ -8,14 +8,9 @@
 #
 source("prediction.R")
 
-library("leaflet.extras")
 library("shiny")
 library("ggmap")
 library("ggplot2")
-library("sp")
-library("rgdal")
-library("KernSmooth")
-library("RgoogleMaps")
 
 # map <- get_map(location = "indonesia" , zoom = 4, maptype = "hybrid", source = "google", color = "color", api_key = "AIzaSyDpk82Y4zWYHeoP4WPyy327flFyMs4xu6k")
 map <- get_map(location = "indonesia" , zoom = 4, maptype = "hybrid", source = "google", color = "color")
@@ -68,15 +63,11 @@ shinyServer(function(input, output, session) {
   
   output$heatMap <- renderPlot({
     predictionData <- read.csv(paste("prediction_data/", input$date, ".csv", sep = ""))
-    #predict <- bayesPredictionProb(predictionData)
+
     predict <- bayesPrediction(predictionData)
     prediction <- cbind(predict, predictionData)
-    #print(head(prediction))
-    #bindPrediction <- cbind(prediction, predictionData)
-    #colnames(prediction) <- gsub("1", "probability", colnames(prediction))
-    #colnames(prediction) <- gsub("0", "false", colnames(prediction))
+
     row_sub = apply(prediction, 1, function(row) all(row !=0 ))
-    #print(head(prediction[row_sub,]))
     
     ggmap(map) + 
       geom_density2d(data = prediction[row_sub,], aes(x = lon, y = lat), size = 0.3) + 

@@ -14,6 +14,7 @@ Getting started
     * `ggmap`
     * `ncdf4`
     * `naivebayes`
+    * `ggplot2`
 
 To install packages, you can use the code:
  ```
@@ -30,7 +31,7 @@ To install packages, you can use the code:
     
 
 
-Usage
+Where do we get our data?
 ======
 #### Filtering and Data Mapping
 Using Global Fishing Watch, we can extract the data of all the ships fishing. While there is a lot of data in this project, the data we currently needed are the ships fishing on Indonesia waters. To get the exact location, we filtered the ship needed in the following coordinates:
@@ -39,7 +40,8 @@ Using Global Fishing Watch, we can extract the data of all the ships fishing. Wh
 
 Because the data gained from [Global Fishing Watch](http://globalfishingwatch.org/) isn't enough to predict Tuna Fish Location, we extract another data from [NOAA High Resolution SST](https://www.esrl.noaa.gov/psd/), which provides data for daily sea temperature and [OceanWatch](https://oceanwatch.pifsc.noaa.gov/erddap/griddap/), which provides weekly Chlorophyll data. 
 
-
+How do we filter our data?
+======
 
 
 Developed by
