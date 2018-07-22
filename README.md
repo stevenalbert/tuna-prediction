@@ -37,10 +37,17 @@ Using Global Fishing Watch, we can extract the data of all the ships fishing. Wh
 * Latitude of -14° ↔ 8°  
 * Longitude of 85° ↔ 142°
 
-Because the data gained from [Global Fishing Watch](http://globalfishingwatch.org/) isn't enough to predict Tuna Fish Location, we extract another data from [NOAA High Resolution SST](https://www.esrl.noaa.gov/psd/), which provides data for daily sea temperature and [OceanWatch](https://oceanwatch.pifsc.noaa.gov/erddap/griddap/), which provides weekly Chlorophyll data. 
+Because the data gained from [Global Fishing Watch](http://globalfishingwatch.org/) isn't enough to predict Tuna Fish Location, we extract another data from [NOAA High Resolution SST](https://www.esrl.noaa.gov/psd/), which provides data for daily sea temperature and [OceanWatch](https://oceanwatch.pifsc.noaa.gov/erddap/griddap/), which provides weekly chlorophyll data. After getting the data, we can map the temperature data and the chlorophyll data with the data of ships [Global Fishing Watch](http://globalfishingwatch.org/). If there is no data available for the specified date, we will fill it with NA (Not Available). 
+
+#### Prediction with Naive Bayes    
+
+After getting the exact data we need, we will predict the locations with Naive Bayes classifier. 
+
+https://wikimedia.org/api/rest_v1/media/math/render/svg/52bd0ca5938da89d7f9bf388dc7edcbd546c118e
 
 
-
+#### Modeling
+To visualize the data, we use `shiny` to show the location of the ships and result of the tuna prediction.  
 
 Developed by
 ======
