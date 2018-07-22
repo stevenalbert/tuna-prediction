@@ -65,7 +65,7 @@ The probability density function for the normal distribution is defined by two p
 
 <p align="center"><img src="http://latex.codecogs.com/svg.latex?\mu\;=\;\frac{1}{n}\:\sum_{i=1}^{n}x_i"></p>
 
-<p align="center"><img src="http://latex.codecogs.com/svg.latex?\sigma\;=\;\left[\frac{1}{n-1}\;\sum_{i=1}^{n}\:(x_i-\mu)^2\right]^{0.5}"></p
+<p align="center"><img src="http://latex.codecogs.com/svg.latex?\sigma\;=\;\left[\frac{1}{n-1}\;\sum_{i=1}^{n}\:(x_i-\mu)^2\right]^{0.5}"></p>
 
 <p align="center"><img src="http://latex.codecogs.com/svg.latex?f(x)\;=\;\frac{1}{\sqrt{2\pi}\;\sigma}\;e^{-\frac{(x-\mu)^2}{2\sigma^2}}"></p>
 
