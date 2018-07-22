@@ -5,7 +5,7 @@ This repository contains the prediction result of Tuna fish location in Indonesi
 Getting started
 ======
 * To use this repository correctly, you'll need:
-  * R (In this project, we use V 3.5.1)
+  * R (In this project, we use version 3.5.1)
   * Internet Browser
   * Java
 * Run R and install the following package needed:
@@ -65,7 +65,7 @@ The probability density function for the normal distribution is defined by two p
 
 <p align="center"><img src="http://latex.codecogs.com/svg.latex?\mu\;=\;\frac{1}{n}\:\sum_{i=1}^{n}x_i"></p>
 
-<p align="center"><img src="http://latex.codecogs.com/svg.latex?\sigma\;=\;\left[\frac{1}{n-1}\;\sum_{i=1}^{n}\:(x_i-\mu)^2\right]"></p>
+<p align="center"><img src="http://latex.codecogs.com/svg.latex?\sigma\;=\;\left[\frac{1}{n-1}\;\sum_{i=1}^{n}\:(x_i-\mu)^2\right]^{0.5}"></p
 
 <p align="center"><img src="http://latex.codecogs.com/svg.latex?f(x)\;=\;\frac{1}{\sqrt{2\pi}\;\sigma}\;e^{-\frac{(x-\mu)^2}{2\sigma^2}}"></p>
 
@@ -107,14 +107,17 @@ From confusion matrix, we can get the accuracy of bayes model which is sum of th
 
 
 
-## Data Modeling
+## Data Visualization
 
 To visualize the data, we use `shiny` to show the location of the ships and result of the tuna prediction.  
 
 In this application, user can use the slidebar to change designated date in which the information shown will change according to the date set.
 
+![Home](https://github.com/stevenalbert/tuna-prediction/blob/master/Application/Home.png)
 
 There are 4 informations that are shown in this application. In the home tab, the right side shows the density of the prediction, while the left side shows the grouping of the density. User can scroll the mouse at the left side to show a more detail grouping in the map. When scrolling down the mouse, the map will show a more accurate position and grouping on the map. 
+
+![Details](https://github.com/stevenalbert/tuna-prediction/blob/master/Application/Details.png)
 
 On the Details tab, user can check the Naive Bayes model graph, which shows the sst density distribution and chlorophyll density distribution from the training data. The red line draws the distribution of the place with no tuna and the striped green line draws the distribution of the place with tuna. 
 
