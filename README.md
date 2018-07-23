@@ -1,5 +1,10 @@
 Predicting Tuna Fish Location in Indonesia Sea
 ======
+
+![project](https://img.shields.io/badge/project-data%20science-blue.svg)
+![sistech](https://img.shields.io/badge/sistech-UPH-green.svg)
+![class](https://img.shields.io/badge/class-frontier%20technology-purple.svg)</br>
+
 This repository contains the prediction result of Tuna fish location in Indonesian waters. The prediction is gained by using multiple data, provided in  [Global Fishing Watch](http://globalfishingwatch.org/). This repository also contains the data of ships that catches tuna from 2012 - 2016.
 
 Getting started
@@ -26,9 +31,9 @@ To install packages, you can use the code:
  install.packages("shiny")
  ```
 * We will also need several data from several sources
-    * [Global Fishing Watch](http://globalfishingwatch.org/)
-    * [NOAA High Resolution SST](https://www.esrl.noaa.gov/psd/)
-    * [OceanWatch - Chlorophyll a Concentration](https://oceanwatch.pifsc.noaa.gov/erddap/griddap/)
+    * [Global Fishing Watch](http://globalfishingwatch.org/) in csv format
+    * [NOAA High Resolution SST](https://www.esrl.noaa.gov/psd/) in netCDF format
+    * [OceanWatch - Chlorophyll a Concentration](https://oceanwatch.pifsc.noaa.gov/erddap/griddap/) in netCDF format
     
 
 
@@ -48,6 +53,9 @@ Because our ship data is daily, while the chlorophyll data time range is unevenl
 The ships, SST, and chlorophyll data all has different range value for latitude and longitude degree. We have to change the data to a range of 1° for the SST and chlorophyll data. Then, we map the ship data by rounding the coordinates to the nearest value of the SST and the chlorophyll data.
 
 To classify the data, we assume if ships that has fishing hours value above zero indicates that they are fishing tuna. So the value of tuna in each coordinates will be either 0 or 1.
+
+## Data Prediction
+Data prediction is taken from sea surface temperature and chlorophyll-a, from 2012-01-01 to 2018-03-31. Data prediction is created per days in 1° x 1° tiles combined with sea surface temperature and chlorophyll-a. It can contain NA values in each row, but we remove all rows that has NA value. It is saved in prediction_data directory.
 
 ## Prediction with Naive Bayes    
 
