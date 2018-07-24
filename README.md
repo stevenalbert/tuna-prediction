@@ -5,12 +5,15 @@ Predicting Tuna Fish Location in Indonesia Sea
 ![sistech](https://img.shields.io/badge/sistech-UPH-green.svg)
 ![class](https://img.shields.io/badge/class-frontier%20technology-purple.svg)</br>
 
+This project is used for class Frontier Technology with Data Science topic in Universitas Pelita Harapan.
+
 This repository contains the prediction result of Tuna fish location in Indonesian waters. The prediction is gained by using multiple data, provided in  [Global Fishing Watch](http://globalfishingwatch.org/). This repository also contains the data of ships that catches tuna from 2012 - 2016.
 
 Getting started
 ======
 * To use this repository correctly, you'll need:
   * R (In this project, we use version 3.5.1)
+  * RStudio
   * Internet Browser
   * Java
 * Run R and install the following package needed:
@@ -39,9 +42,25 @@ To install packages, you can use the code:
 
 Usage
 ======
+
+To run this R project, you can follow this steps: (use RStudio)
+
+1. Clone this repository to your directory
+```
+git clone "https://github.com/stevenalbert/tuna-prediction"
+```
+
+2. Open `tuna-prediction.Rproj` with RStudio
+
+3. Open `server.R` or `ui.R` of this project in RStudio and click `Run App` or you can just use the command `runApp()`.
+
+4. Enjoy the application.
+
+Implementation
+======
 ## Filtering and Data Mapping
 Using Global Fishing Watch, we can extract the data of all the ships fishing. While there is a lot of data in this project, the data we currently needed are the ships fishing around Indonesia waters. To get the exact location, we filtered the ship needed in the following coordinates:
-* Latitude of -14° ↔ 8°  
+* Latitude of -14° ↔ 8°
 * Longitude of 85° ↔ 142°
 
 We planned to filter ship data geartypes that is not for fishing tuna. Unfortunately, all the ships in our coordinates range is equipped with geartypes to fish tuna. So we just assume all ships that fish is probably fishing tuna.
@@ -128,6 +147,18 @@ There are 4 informations that are shown in this application. In the home tab, th
 ![Details](https://github.com/stevenalbert/tuna-prediction/blob/master/Application/Details.png)
 
 On the Details tab, user can check the Naive Bayes model graph, which shows the sst density distribution and chlorophyll density distribution from the training data. The red line draws the distribution of the place with no tuna and the striped green line draws the distribution of the place with tuna. 
+
+Notes
+======
+Some files included in this repository:
+* `fishing_effort/` and `train_data.csv`: Filtered data used for training
+* `prediction_data/`: Data for prediction
+* `chlorophyll/`: Scaled data from 0.05° x 0.05° to 1° x 1° of OceanWatch Chlorophyll-a data (from 2012 to 2017 and a bit of 2018)
+* `data.R`: Function used for filtering fishing data except filtering latitude and longitude
+
+Files excluded in this repository:
+* Sea surface temperature data from NOAA
+* Unscaled Chlorophyll-a data
 
 Developed by
 ======
